@@ -1,4 +1,5 @@
 const Category = require('../models/Category')
+const Product = require('../models/Product')
 const slugify = require('slugify')
 
 function createCategories(categories, parentId = null) {
@@ -41,8 +42,8 @@ exports.addCategory = async (req, res) => {
     }
 }
 
-exports.getCategories = async (req, res) => {
-    const categories = await Category.find({})
+exports.listCategories = async (req, res) => {
+    const categories = await Category.find()
     if (categories) {
         const categoryList = createCategories(categories)
         return res.status(200).json({ categoryList })
@@ -62,4 +63,16 @@ exports.updateCategory = async (req, res) => {
     } catch (e) {
         return res.status(400).send(e)
     }
-}   
+}
+
+exports.deleteCategory = async (req, res) => {
+    try {
+        await Category.findByIdAndRemove(req.params.id)
+        await Category.deleteMany({ parentId: req.params.id })
+        await Product.deleteMany({ category: req.params.id })
+        return res.status(204).json({ message: 'Category deleted successfully' })
+    }
+    catch (e) {
+        return res.status(400).send(e)
+    }
+}

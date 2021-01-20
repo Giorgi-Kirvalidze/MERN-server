@@ -14,9 +14,9 @@ app.use(cors())
 app.use(express.json())
 app.use('/public', express.static(path.join(__dirname, 'uploads')))
 app.use(express.urlencoded({ extended: true }))
-app.use('/api', userRoutes)
-app.use('/api', productRoutes)
-app.use('/api', categoryRoutes)
+app.use('/api/users', userRoutes)
+app.use('/api/products', productRoutes)
+app.use('/api/categories', categoryRoutes)
 
 const PORT = process.env.PORT || 2000
 app.listen(PORT, () => console.log(`Server is running at ${PORT}`))

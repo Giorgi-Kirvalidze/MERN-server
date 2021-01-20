@@ -63,6 +63,7 @@ userSchema.methods = {
         return await bcrypt.compareSync(password, this.password)
     }
 }
+
 userSchema.pre('save', async function (next) {
     const user = this
     if (user.isModified('password')) {

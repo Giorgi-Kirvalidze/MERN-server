@@ -9,11 +9,14 @@ const user = {
     contactNumber: '579160627',
 }
 
-User.create(user, function (e) {
-    if (e) {
-        throw e;
-    }
-});
+
+const initAdmin = async (user) => {
+    await User.create(user, function (e) {
+        if (e) { throw e }
+    })
+}
+initAdmin(user)
+
 
 
 
