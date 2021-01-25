@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        minlength: 7,
+        minlength: 5,
         maxlength: 15
     },
     email: {
@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         default: 'user'
     },
-    contactNumber: {
+    number: {
         type: String,
         required: true,
         validate(value) {
@@ -58,18 +58,18 @@ const userSchema = new mongoose.Schema({
 
 }, { timestamps: true })
 
-userSchema.methods = {
-    authenticate: async function (password) {
-        return await bcrypt.compareSync(password, this.password)
-    }
+
+userSchema.methods.authenticate = async function (password) {
+    const user = this
+    return await bcrypt.compare(password, user.password)
 }
 
-userSchema.pre('save', async function (next) {
-    const user = this
-    if (user.isModified('password')) {
-        user.password = await bcrypt.hash(user.password, 8)
-    }
-    next()
-})
+// userSchema.pre('save', async function (next) {
+//     const user = this
+//     if (user.isModified('password')) {
+//         user.password = await bcrypt.hash(user.password, 8)
+//     }
+//     next()
+// })
 
 module.exports = mongoose.model('User', userSchema)

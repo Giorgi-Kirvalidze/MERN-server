@@ -7,6 +7,8 @@ const app = express()
 const userRoutes = require('./routes/user')
 const productRoutes = require('./routes/product')
 const categoryRoutes = require('./routes/category')
+const cartRoutes = require('./routes/cart')
+
 env.config()
 require('./db/mongoose')
 
@@ -17,6 +19,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use('/api/users', userRoutes)
 app.use('/api/products', productRoutes)
 app.use('/api/categories', categoryRoutes)
+app.use('/api/cart', cartRoutes)
 
 const PORT = process.env.PORT || 2000
 app.listen(PORT, () => console.log(`Server is running at ${PORT}`))

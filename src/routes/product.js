@@ -15,9 +15,9 @@ const storage = multer.diskStorage({
 })
 const upload = multer({ storage })
 
-router.post('/create', requireSignin, adminMiddleware, upload.array('productPicture'), createProduct)
-router.get('/', requireSignin, adminMiddleware, listProducts)
-router.get('/:id', requireSignin, adminMiddleware, getProduct)
+router.post('/', requireSignin, adminMiddleware, upload.array('productPicture'), createProduct)
+router.get('/', requireSignin, listProducts)
+router.get('/:id', requireSignin, getProduct)
 router.patch('/:id', requireSignin, adminMiddleware, updateProduct)
 router.delete('/:id', requireSignin, adminMiddleware, deleteProduct)
 

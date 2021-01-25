@@ -2,6 +2,15 @@ const User = require('../models/User')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 
+
+
+
+const generateJwtToken = (_id, role) => {
+    return jwt.sign({ _id, role }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+    });
+};
+
 exports.signup = async (req, res) => {
     const inputs = Object.keys(req.body)
     const allowedInputs = [
@@ -9,17 +18,20 @@ exports.signup = async (req, res) => {
         'lastName',
         'email',
         'password',
-        'contactNumber'
+        'number'
     ]
     const isValidOperation = inputs.every(input => allowedInputs.includes(input))
     if (!isValidOperation) return res.status(400).json({ message: 'Not valid operation.' })
     const isRegistered = await User.findOne({ email: req.body.email })
     if (isRegistered) return res.status(400).json({ message: 'User with this email is already registered.' })
     req.body.password = await bcrypt.hashSync(req.body.password, 8)
+
     const user = new User(req.body)
     try {
         await user.save()
-        return res.status(201).json({ message: 'User registered successfully.' })
+        const token = generateJwtToken(user._id, user.role);
+        res.status(201).json({ message: 'User registered successfully.', token: token })
+
     } catch (e) {
         return res.status(400).json({ message: e })
     }
@@ -27,20 +39,29 @@ exports.signup = async (req, res) => {
 
 exports.signin = async (req, res) => {
     const user = await User.findOne({ email: req.body.email })
-    if (!user) { return res.status(400).json({ message: 'Please provide correct email.' }) }
-    if (user.authenticate(req.body.password)) {
-        const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7 days' })
-        try {
-            await user.save()
+    if (!user) { return res.status(400).json({ message: 'მოხმარებლის სახელი ან პაროლი არასწორია' }) }
+    if (user) {
+        const isMatch = await user.authenticate(req.body.password)
+        if (isMatch) {
+            const token = generateJwtToken(user._id, user.role);
             res.status(200).json({
                 token, user
             })
-        } catch (e) {
-            return res.status(400).json({ message: e })
+        } else {
+            return res.status(400).json({ message: 'მოხმარებლის სახელი ან პაროლი არასწორია' })
         }
-    } else {
-        return res.status(400).json({ message: 'Invalid password.' })
     }
+}
+
+exports.signout = async (req, res) => {
+    try {
+        req.logOut();
+        res.status(200).json({ message: 'Signout successfully' })
+        res.redirect('/');
+    } catch (e) {
+        return res.send({ message: e })
+    }
+
 }
 
 
