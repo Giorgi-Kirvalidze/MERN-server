@@ -23,7 +23,7 @@ exports.signup = async (req, res) => {
     const isValidOperation = inputs.every(input => allowedInputs.includes(input))
     if (!isValidOperation) return res.status(400).json({ message: 'Not valid operation.' })
     const isRegistered = await User.findOne({ email: req.body.email })
-    if (isRegistered) return res.status(400).json({ message: 'User with this email is already registered.' })
+    if (isRegistered) return res.status(400).json({ message: 'მითითებული ემაილი რეგისტრირებულია' })
     req.body.password = await bcrypt.hashSync(req.body.password, 8)
 
     const user = new User(req.body)
@@ -71,7 +71,7 @@ exports.getUser = async (req, res) => {
     try {
         const user = await User.findById(req.params.id)
         if (!user) { return res.status(404).json({ message: 'There is no user associated with that id' }) }
-        res.send({ user })
+        res.send({ user: user })
     } catch (e) {
         res.status(500).json(e)
     }
@@ -80,15 +80,15 @@ exports.getUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
 
     const updates = Object.keys(req.body)
-    const allowedUpdates = ['firstName', 'lastName', 'password', 'email', 'role', 'contactNumber', 'profilePicture']
-    const isValidOperation = updates.every(update => allowedUpdates.includes(update))
-    if (!isValidOperation) { return res.status(400).send({ error: 'Invalid updates.' }) }
+    // const allowedUpdates = ['id', 'firstName', 'lastName', 'password', 'email', 'role', 'contactNumber', 'profilePicture']
+    // const isValidOperation = updates.every(update => allowedUpdates.includes(update))
+    // if (!isValidOperation) { return res.status(400).send({ error: 'Invalid updates.' }) }
     try {
         const user = await User.findById(req.params.id)
         if (!user) { return res.status(404).send({}) }
         updates.forEach(update => user[update] = req.body[update])
         const updatedUser = await user.save()
-        return res.send(updatedUser)
+        return res.json({ updatedUser: updatedUser })
     } catch (e) {
         res.status(400).send(e)
     }
